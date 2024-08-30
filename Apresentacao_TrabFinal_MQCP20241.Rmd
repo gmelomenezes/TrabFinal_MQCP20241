@@ -1,27 +1,434 @@
 ---
 title: "Trabalho Final MQCP 2024.1"
 author: "Gabriel Melo de Menezes"
-date: "2024-08-10"
-output: ioslides_presentation
+output:
+  ioslides_presentation:
+    widescreen: true
+    
 ---
 
 ```{r setup, include=FALSE}
 
 knitr::opts_chunk$set(echo = FALSE)
 
-setwd("~/dados")
+pacman::p_load(rmarkdown, knitr, haven, tidyverse, readxl, sjlabelled, dplyr, foreign, 
+               rmarkdown, ggplot2, geepack, plm, extrafont, ggrepel, text, kableExtra,
+               corrplot)
 
 conf_part <- readRDS("dados/confianca_partidaria.rds")
 
+leg_comb <- readRDS("dados/legislativo_combinado.rds")
+
+pres_comb <- readRDS("dados/presidencial_combinado.rds")
+
+db_leg_gee <- readRDS("dados/legislativo_pronto_gee.rds")
+
+db_pres_gee <- readRDS("dados/presidencial_pronto_gee.rds")
+
 ```
 
-# Objeto
+## Objeto
 
-A 
+O tema central da apresentação é publicizar os resultados da pesquisa realizada sobre a influência da confiança nos partidos políticos na Institucionalização do Sistema Partidário, intitulado "*This is why we can’t have nice things:* o impacto da (des)confiança nos partidos para a Institucionalização do Sistema Partidário na América Latina"
 
-# Objetivos (questões de pesquisa que o trabalho irá responder)
-# Contexto (justificativa)
-# Método (como foram coletados, tratados e organizados os dados)
-# Gráficos/tabelas (2 slides, pelo menos)
-# Conclusões
+## Objetivos
 
+Questões de Pesquisa:
+
+- Como a confiança nos partidos políticos afeta a Institucionalização do Sistema Partidário, operacionalizada pela volatilidade eleitoral, na América Latina?
+
+- Qual a relação entre o controle da corrupção e a confiança nos partidos políticos?
+
+## Contexto
+
+Schattschneider (2017) cita que é impensável a existência da democracia sem partidos. Para entender os fenômenos que ocorrem nas democracias é essencial voltar-se para estudar o sistema partidário. O nível de estabilidade do sistema partidário, por sua vez, mostra-se de extrema importância para a estabilidade da democracia.
+
+A estabilidade da competição eleitoral, uma das dimensões da Instituição do Sistema Partidário, é essencial para o estabelecimento rótulos partidários capazes de prover atalhos cognitivos para a tomada de decisão dos eleitores (Mainwaring e Torcal, 2006), por exemplo. Uma maior instabilidade na competição também é capaz de causar o enfraquecimento dos regimes democráticos (Mainwaring e Zoco, 2007).
+
+# Método
+
+## Coleta de Dados
+
+**Dados de Confiança nos Partidos**
+
+A variável de confiança nos partidos políticos foi coletada da base de dados do Latinobarômetro (de 1995 a 2005) e do AmericasBarometer/LAPOP (a partir de 2005).
+
+Como estas duas pesquisas permitiam diferentes variações de respostas para a pergunta de confiança, foi feita uma transformação linear na escala de ambos estudos para que fosse possível a comparação entre eles.
+
+De forma a equiparar a unidade de análise com a estudada pela volatilidade eleitoral, realizou-se a agregação das médias de confiança por país e ano do estudo.
+
+## Coleta de Dados
+
+**Outras variáveis**
+
+Todas as outras variáveis utilizadas neste trabalho, foram obtidas no dataset *Replication Data for: Electoral Volatility in Latin America, 1932–2018* dos pesquisadores Scott Mainwaring e Yen-Pin Su, com acesso disponível via Harvard Dataverse.
+
+A equivalência entre conceitos e variáveis da base de dados foi a seguinte:
+
+- Corrupção: con_corruption (nível de controle da corrupção)
+- Volatilidade: volatility, newparties e withinsv
+- Identificação Partidária/Partidarismo: party_id
+- Crescimento do PIB: gdp_growth1
+- Número Efetivo de Partidos: enp
+
+## Análise de Dados
+
+Para entender a relação entre a corrupção e a confiança nos partidos políticos na América Latina, calculou-se o coeficiente de correlação de Spearman.
+
+Esta técnica foi utilizada pela observação de uma assimetria na distribuição das observações da variável utilizada como proxy de corrupção.
+
+De forma a testar a hipótese da existência da relação entre a confiança nos partidos políticos e a volatilidade na região, utilizou-se da técnica de regressão Estimação de Equações Generalizadas (GEE) com a especificação Auto-Regressiva de Ordem 1 (AR1).
+
+A utilização deste método se deve pela intenção de capturar o efeito das mudanças nas variáveis independentes em relação à média dos países que compõem o dataset e não somente os seus efeitos em cada país individualmente.
+
+# Resultados
+
+## A confiança nos partidos políticos na América Latina
+
+```{r Figura 1, include=T, echo=F, warning=F,fig.height=4, fig.width=10}
+
+ggplot(conf_part %>% mutate(country = case_when(
+  country == "ARGENTINA" ~ "Argentina",
+  country == "BOLIVIA" ~ "Bolívia",
+  country == "BRAZIL" ~ "Brasil",
+  country == "CHILE" ~ "Chile",
+  country == "COLOMBIA" ~ "Colômbia",
+  country == "COSTA RICA" ~ "Costa Rica",
+  country == "CUBA" ~ "Cuba",
+  country == "DOMINICAN REPUBLIC" ~ "República Dominicana",
+  country == "ECUADOR" ~ "Equador",
+  country == "EL SALVADOR" ~ "El Salvador",
+  country == "GUATEMALA" ~ "Guatemala",
+  country == "HONDURAS" ~ "Honduras",
+  country == "MEXICO" ~ "México",
+  country == "NICARAGUA" ~ "Nicarágua",
+  country == "PANAMA" ~ "Panamá",
+  country == "PARAGUAY" ~ "Paraguai",
+  country == "PERU" ~ "Peru",
+  country == "URUGUAY" ~ "Uruguai",
+  country == "VENEZUELA" ~ "Venezuela")) , aes(x = year, y = conf_part)) +
+  geom_line(color = "darkgrey", size = 1) +
+  geom_point(color = "black", size = 2) +
+  facet_wrap(~country, ncol = 6) +
+  scale_x_continuous(breaks = seq(1995, 2023, by = 7),
+                     labels = seq(1995, 2023, by = 7)) +
+  theme_minimal() +
+  labs(x = "Ano",
+       y = "Confiança nos Partidos Políticos",
+       title = "Figura 1 - Evolução da Confiança nos Partidos Políticos por País na América Latina") +
+  theme(plot.title = element_text(hjust = 0.5, size = 10, face = "bold"),
+        axis.title.x = element_text(vjust = 0, size = 12),
+        axis.title.y = element_text(size = 12),
+        strip.text = element_text(size = 10),
+        panel.spacing.x = unit(0.5, "cm"))
+
+```
+
+## A confiança nos partidos políticos na América Latina
+
+Nos países latino-americanos observados, a confiança nos partidos políticos varia entre 1 a 5. A média geral da região é de **2,86**, com um desvio padrão de **0,795**. O resultado do índice para a região, sugere que há uma baixa confiança persistente na maioria dos países da região.
+
+Ao analisar individualmente, destacam-se o Equador, a Bolívia e o Peru como os países com maior desconfiança nos partidos políticos, enquanto El Salvador, o México e o Uruguai apresentam níveis mais elevados de confiança.
+
+## A corrupção e a confiança nos partidos políticos
+
+``` {r Figura 2, include=T, echo=F, warning=F,fig.height=5, fig.width=10}
+
+ggplot(leg_comb %>% mutate(country = case_when(country == "ARGENTINA" ~ "Argentina",
+                                                country == "BOLIVIA" ~ "Bolívia",
+                                                country == "BRAZIL" ~ "Brasil",
+                                                country == "CHILE" ~ "Chile",
+                                                country == "COLOMBIA" ~ "Colômbia",
+                                                country == "COSTA RICA" ~ "Costa Rica",
+                                                country == "CUBA" ~ "Cuba",
+                                                country == "DOMINICAN REPUBLIC" ~ "Rep. Dom.",
+                                                country == "ECUADOR" ~ "Equador",
+                                                country == "EL SALVADOR" ~ "El Salvador",
+                                                country == "GUATEMALA" ~ "Guatemala",
+                                                country == "HONDURAS" ~ "Honduras",
+                                                country == "MEXICO" ~ "México",
+                                                country == "NICARAGUA" ~ "Nicarágua",
+                                                country == "PANAMA" ~ "Panamá",
+                                                country == "PARAGUAY" ~ "Paraguai",
+                                                country == "PERU" ~ "Peru",
+                                                country == "URUGUAY" ~ "Uruguai",
+                                                country == "VENEZUELA" ~ "Venezuela")) %>%
+         group_by(country) %>%
+         summarise(media = mean(con_corruption, na.rm = T),
+                   desv_pad = sd(con_corruption, na.rm = T)) %>%
+         arrange(media),
+       aes(x = reorder(country, media), y = media)) +
+  geom_bar(stat = "identity", fill = "#595959") +
+  geom_errorbar(aes(ymin = media - desv_pad, ymax = media + desv_pad), width = 0.2,
+                color = "#AFAFAF") +
+  geom_text(aes(label = round(media, 2), vjust = ifelse(media < 0, 1.5, -0.5)), 
+            hjust = 0.5, size = 5, color = "black", fontface = "bold", lineheight = 0.8) +
+  theme_minimal() +
+  labs(y = "Controle da Corrupção",
+       x = NULL,
+       title = "Figura 2 - Média do Controle da Corrupção nos Países da América Latina") +
+  theme(plot.title = element_text(hjust = 0.5, size = 10, face = "bold"),
+        axis.title.x = element_text(size = 12),
+        axis.text.x = element_text(size = 8),
+        axis.title.y = element_text(size = 12),
+        strip.text = element_text(size = 10))
+        
+```
+
+## A corrupção e a confiança nos partidos políticos
+
+Em comparação ao índice de confiança, o índice de controle da corrupção apresenta uma menor variação nos dados de cada país, indicado pelos menores valores de desvio padrão. Ainda assim, a maioria dos países do estudo têm um nível de controle da corrupção considerado baixo.
+
+Isto conversa com diversos achados da literatura que indicam um sentimento enraizado (entenda-se, com pouca variação) de corrupção generalizada nos países da América Latina, com exceção dos únicos casos que obtêm resultados positivos: Costa Rica, Uruguai e Chile (Rotberg, 2019;  Canache e Allison, 2005).
+
+## A corrupção e a confiança nos partidos políticos
+
+``` {r Figura 3, include=T, echo=F, warning=F,fig.height=5, fig.width=10}
+
+leg_comb_fltrd <- data.frame(leg_comb %>% filter(!is.na(conf_part),
+                                         !is.na(con_corruption)))
+
+cor_spear_conf_cor <- cor(leg_comb_fltrd$conf_part, leg_comb_fltrd$con_corruption, method = "spearman")
+
+cor_pear_conf_cor <- cor(leg_comb_fltrd$conf_part, leg_comb_fltrd$con_corruption, method = "pearson")
+
+ggplot(leg_comb %>% mutate(country = case_when(country == "ARGENTINA" ~ "Argentina",
+                                                country == "BOLIVIA" ~ "Bolívia",
+                                                country == "BRAZIL" ~ "Brasil",
+                                                country == "CHILE" ~ "Chile",
+                                                country == "COLOMBIA" ~ "Colômbia",
+                                                country == "COSTA RICA" ~ "Costa Rica",
+                                                country == "CUBA" ~ "Cuba",
+                                                country == "DOMINICAN REPUBLIC" ~ "República Dominicana",
+                                                country == "ECUADOR" ~ "Equador",
+                                                country == "EL SALVADOR" ~ "El Salvador",
+                                                country == "GUATEMALA" ~ "Guatemala",
+                                                country == "HONDURAS" ~ "Honduras",
+                                                country == "MEXICO" ~ "México",
+                                                country == "NICARAGUA" ~ "Nicarágua",
+                                                country == "PANAMA" ~ "Panamá",
+                                                country == "PARAGUAY" ~ "Paraguai",
+                                                country == "PERU" ~ "Peru",
+                                                country == "URUGUAY" ~ "Uruguai",
+                                                country == "VENEZUELA" ~ "Venezuela")),
+       aes(x = con_corruption, y = conf_part, label = country)) +
+  geom_point(color = "black", size = 1) +
+  geom_smooth(method = "lm", formula = y ~ x, color = "royalblue", linetype = "dashed") +
+  geom_smooth(method = "loess", formula = y ~ x, color = "#C21807", linetype = "dotted") +
+  theme_minimal() +
+  labs(x = "Controle da Corrupção",
+       y = "Confiança nos Partidos Políticos",
+       title = "Figura 3 - Controle da Corrupção e Confiança nos Partidos Políticos") +
+  annotate("text", x = Inf, y = Inf,
+           label = paste("Spearman =", round(cor_spear_conf_cor, 2)),
+           hjust = 1.1, vjust = 2, size = 4, color = "#C21807") +
+  annotate("text", x = Inf, y = Inf,
+           label = paste("Pearson =", round(cor_pear_conf_cor, 2)),
+           hjust = 1.1, vjust = 3.5, size = 4, color = "royalblue") +
+  theme(plot.title = element_text(hjust = 0.5, size = 10, face = "bold"),
+        axis.title.x = element_text(size = 12),
+        axis.title.y = element_text(size = 12),
+        strip.text = element_text(size = 10))
+
+```
+
+## A corrupção e a confiança nos partidos políticos
+
+O resultado obtido é uma correlação positiva fraca de, aproximadamente, *0,27* para a correlação de Spearman e *0,29* para a correlação de Pearson. Esta baixa relação pode indicar que o controle da corrupção é um dos fatores que influenciam a confiança nos partidos dentre de uma gama de outros fatores.
+
+Ceka (2013), ao analisar os países que haviam sido palco para regimes comunistas, observa que a competição partidária, a liberdade de imprensa, como influenciadores de uma maior suspeição em relação aos partidos políticos. Por outro lado, a igualdade econômica, a confiança interpessoal, a confiança na democracia e proximidade aos partidos políticos, agem como determinantes de uma maior confiança.
+
+## A confiança nos partidos políticos e a volatilidade eleitoral
+
+``` {r Tabela 1, include=T, echo=F, warning=F}
+
+# Rodando os modelos
+
+# Modelo de regressão GEE com volatilidade legislativa total como dependente
+leg_gee <- geeglm(volatility ~ enp + gdp_growth1 + party_id + conf_part,
+                  data = db_leg_gee,
+                  id = country,
+                  family = poisson,
+                  corstr = "ar1")
+
+# Modelo de regressão GEE com volatilidade legislativa extrassistema como dependente
+leg_new_gee <- geeglm(newparties ~ enp + gdp_growth1 + party_id + conf_part,
+                     data = db_leg_gee, 
+                     id = country,
+                     family = poisson,
+                     corstr = "ar1")
+
+
+# Modelo de regressão GEE com volatilidade legislativa intrassistema como dependente
+leg_wthin_gee <- geeglm(withinsv ~ enp + gdp_growth1 + party_id + conf_part,
+                        data = db_leg_gee, 
+                        id = country,
+                        family = poisson,
+                        corstr = "ar1")
+
+# Modelo de regressão GEE com volatilidade presidencial total como dependente
+pres_gee <- geeglm(volatility ~ enp + gdp_growth1 + party_id + conf_part,
+                        data = db_pres_gee, 
+                        id = country,
+                        family = poisson,
+                        corstr = "ar1")
+
+# Modelo de regressão GEE com volatilidade presidencial extrassistema como dependente
+pres_new_gee <- geeglm(newparties ~ enp + gdp_growth1 + party_id + conf_part,
+                       data = db_pres_gee, 
+                       id = country,
+                       family = poisson,
+                       corstr = "ar1")
+
+# Modelo de regressão GEE com volatilidade presidencial intraassistema como dependente
+pres_wthin_gee <- geeglm(withinsv ~ enp + gdp_growth1 + party_id + conf_part,
+                       data = db_pres_gee, 
+                       id = country,
+                       family = poisson,
+                       corstr = "ar1")
+
+# Preparando os resultados dos modelos para tabela conjunta
+tidy_leg_gee <- tidy(leg_gee) %>% 
+  mutate(term = case_when(term == "enp" ~ "NEP",
+                          term == "gdp_growth1" ~ "Crescimento do PIB",
+                          term == "party_id" ~ "Identificação",
+                          term == "conf_part" ~ "Confiança",
+                          term == "(Intercept)" ~ "Intercepto"),
+         estimate = round(estimate, 3),
+         std.error = round(std.error, 3),
+         p.value = case_when(p.value > 0.05 ~ "",
+                             p.value <= 0.05 & p.value > 0.01 ~ "*",
+                             p.value <= 0.01 & p.value > 0.001 ~ "**",
+                             p.value <= 0.001 ~ "***"),
+         estimate = paste0(estimate, p.value, " (", std.error, ")"))
+
+tidy_new_leg_gee <- tidy(leg_new_gee) %>% 
+  mutate(term = case_when(term == "enp" ~ "NEP",
+                          term == "gdp_growth1" ~ "Crescimento do PIB",
+                          term == "party_id" ~ "Identificação",
+                          term == "conf_part" ~ "Confiança",
+                          term == "(Intercept)" ~ "Intercepto"),
+         estimate = round(estimate, 3),
+         std.error = round(std.error, 3),
+         p.value = case_when(p.value > 0.05 ~ "",
+                             p.value <= 0.05 & p.value > 0.01 ~ "*",
+                             p.value <= 0.01 & p.value > 0.001 ~ "**",
+                             p.value <= 0.001 ~ "***"),
+         estimate = paste0(estimate, p.value, " (", std.error, ")"))
+
+tidy_wthin_leg_gee <- tidy(leg_wthin_gee) %>% 
+  mutate(term = case_when(term == "enp" ~ "NEP",
+                          term == "gdp_growth1" ~ "Crescimento do PIB",
+                          term == "party_id" ~ "Identificação",
+                          term == "conf_part" ~ "Confiança",
+                          term == "(Intercept)" ~ "Intercepto"),
+         estimate = round(estimate, 3),
+         std.error = round(std.error, 3),
+         p.value = case_when(p.value > 0.05 ~ "",
+                             p.value <= 0.05 & p.value > 0.01 ~ "*",
+                             p.value <= 0.01 & p.value > 0.001 ~ "**",
+                             p.value <= 0.001 ~ "***"),
+         estimate = paste0(estimate, p.value, " (", std.error, ")"))
+
+tidy_pres_gee <- tidy(pres_gee) %>% 
+  mutate(term = case_when(term == "enp" ~ "NEP",
+                          term == "gdp_growth1" ~ "Crescimento do PIB",
+                          term == "party_id" ~ "Identificação",
+                          term == "conf_part" ~ "Confiança",
+                          term == "(Intercept)" ~ "Intercepto"),
+         estimate = round(estimate, 3),
+         std.error = round(std.error, 3),
+         p.value = case_when(p.value > 0.05 ~ "",
+                             p.value <= 0.05 & p.value > 0.01 ~ "*",
+                             p.value <= 0.01 & p.value > 0.001 ~ "**",
+                             p.value <= 0.001 ~ "***"),
+         estimate = paste0(estimate, p.value, " (", std.error, ")"))
+
+tidy_new_pres_gee <- tidy(pres_new_gee) %>% 
+  mutate(term = case_when(term == "enp" ~ "NEP",
+                          term == "gdp_growth1" ~ "Crescimento do PIB",
+                          term == "party_id" ~ "Identificação",
+                          term == "conf_part" ~ "Confiança",
+                          term == "(Intercept)" ~ "Intercepto"),
+         estimate = round(estimate, 3),
+         std.error = round(std.error, 3),
+         p.value = case_when(p.value > 0.05 ~ "",
+                             p.value <= 0.05 & p.value > 0.01 ~ "*",
+                             p.value <= 0.01 & p.value > 0.001 ~ "**",
+                             p.value <= 0.001 ~ "***"),
+         estimate = paste0(estimate, p.value, " (", std.error, ")"))
+
+tidy_wthin_pres_gee <- tidy(pres_wthin_gee) %>% 
+  mutate(term = case_when(term == "enp" ~ "NEP",
+                          term == "gdp_growth1" ~ "Crescimento do PIB",
+                          term == "party_id" ~ "Identificação",
+                          term == "conf_part" ~ "Confiança",
+                          term == "(Intercept)" ~ "Intercepto"),
+         estimate = round(estimate, 3),
+         std.error = round(std.error, 3),
+         p.value = case_when(p.value > 0.05 ~ "",
+                             p.value <= 0.05 & p.value > 0.01 ~ "*",
+                             p.value <= 0.01 & p.value > 0.001 ~ "**",
+                             p.value <= 0.001 ~ "***"),
+         estimate = paste0(estimate, p.value, " (", std.error, ")"))
+
+# Tabela Conjunta
+geear1 <- tidy_leg_gee %>%
+  left_join(tidy_new_leg_gee, by = "term") %>%
+  left_join(tidy_wthin_leg_gee, by = "term") %>%
+  left_join(tidy_pres_gee, by = "term") %>%
+  left_join(tidy_new_pres_gee, by = "term") %>%
+  left_join(tidy_wthin_pres_gee, by = "term") %>%
+  select(term, contains("estimate")) %>%
+  rename("Variáveis" = "term",
+          "Vol. Leg. Total" = "estimate.x",
+          "Vol. Leg. Extra" = "estimate.y",
+          "Vol. Leg. Intra" = "estimate.x.x",
+          "Vol. Pres. Total" = "estimate.y.y",
+          "Vol. Pres. Extra" = "estimate.x.x.x",
+          "Vol. Pres. Intra" = "estimate.y.y.y") %>%
+  select("Variáveis", "Vol. Leg. Total", "Vol. Pres. Total", "Vol. Leg. Extra", "Vol. Pres. Extra",
+         "Vol. Leg. Intra", "Vol. Pres. Intra")
+
+kable(geear1, caption = "<div style='text-align: center; font-size: 14px; color: black;'>Tabela 1 - Resultados das Regressões (Modelo GEEAR1)</div>") %>%
+  kable_styling(font_size = 14, full_width = TRUE) %>%
+  column_spec(1, width = "2.5cm") %>%
+  column_spec(2:7, extra_css = "text-align: right;") %>%
+  row_spec(0, bold = TRUE, font_size = 16) %>%
+  column_spec(1, bold = TRUE)
+
+```
+
+## A confiança nos partidos políticos e a volatilidade eleitoral
+
+Ao todo foram 89 observações para cada modelo de volatilidade legislativa e 75 casos em cada modelo de volatilidade presidencial.
+
+Os resultados parecem bastante promissores para a hipótese de trabalho elaborada. A confiança nos partidos exerce a maior influência absoluta para a diminuição da volatilidade presidencial e legislativa de novos partidos, além da volatilidade presidencial total.
+
+No modelo com a volatilidade legislativa extrassistêmica, somente esta variável se mostrou significativa, indicando que a confiança nos partidos políticos teve um efeito mais significativo do que os outros fatores já estudados na literatura para controlar a ascensão eleitoral de novos competidores do sistema partidário.
+
+## Conclusões
+
+- Apesar da limitação do recorte temporal, o principal resultado encontrado foi a confirmação da hipótese de trabalho na dimensão extrassistêmica da volatilidade.
+
+- Este achado aprofunda a literatura de Sistema Partidário por determinar o impacto entre a opinião pública e uma instituição política.
+
+- Outro achado do presente trabalho foi a correlação fraca entre o controle da corrupção e a confiança no sistema partidário.
+
+- Futuros estudos podem fornecer modelos mais robustos para os determinantes individuais da confiança nos partidos políticos latinoamericanos, semelhante ao que foi feito por Ceka (2013), não se limitando só à corrupção, e como eles interagem com o Sistema Partidário.
+
+## Referências
+
+<div style='font-size: 16px; color: black;'>CANACHE, Damarys; ALLISON, Michael E. Perceptions of political corruption in Latin American democracies. **Latin American Politics and Society**, v. 47, n. 3, p. 91-111, 2005.
+
+CEKA, Besir. The perils of political competition: Explaining participation and trust in political parties in Eastern Europe. **Comparative Political Studies**, v. 46, n. 12, p. 1610-1635, 2013.
+
+MAINWARING, Scott; ZOCO, Edurne. Political sequences and the stabilization of interparty competition: electoral volatility in old and new democracies. **Party Politics**, v. 13, n. 2, p. 155-178, 2007.
+
+MAINWARING, Scott; TORCAL, Mariano. Party system institutionalization and party system theory after the third wave of democratization. **Handbook of Party Politics**, v. 11, n. 6, p. 204-227, 2006.
+
+MAINWARING, SCOTT; SU, YEN-PIN, 2021, “Replication Data for: Electoral Volatility in Latin America, 1932–2018”, https://doi.org/10.7910/DVN/KVUKBF, Harvard Dataverse, V1, UNF:6:GSkBpSKk6SDR8S93C0i6SA== [fileUNF]
+
+ROTBERG, Robert I.. The Corruption of Latin America. **Corruption In Latin America**, [S.L.], p. 1-25, 20 out. 2018. Springer International Publishing.
+
+SCHATTSCHNEIDER, Elmer. Party government: American government in action. Routledge, 2017.</div>

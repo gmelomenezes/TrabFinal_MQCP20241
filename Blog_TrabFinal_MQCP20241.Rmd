@@ -8,7 +8,7 @@ css: styles.css
 ---
 
 <style>
-/* Tamanho dos títulos */
+
 h1 {
   font-size: 24px;
 }
@@ -21,7 +21,6 @@ h3 {
   font-size: 18px;
 }
 
-/* Justificar texto */
 p {
   text-align: justify;
 }
@@ -29,7 +28,12 @@ p {
 </style>
 
 ```{r setup, include=FALSE}
+
 knitr::opts_chunk$set(echo = TRUE)
+
+pacman::p_load(rmarkdown, knitr, haven, tidyverse, readxl, sjlabelled, dplyr, foreign, 
+               rmarkdown, ggplot2, geepack, plm, extrafont, ggrepel, text, kableExtra,
+               corrplot)
 
 conf_part <- readRDS("dados/confianca_partidaria.rds")
 
@@ -40,9 +44,6 @@ pres_comb <- readRDS("dados/presidencial_combinado.rds")
 db_leg_gee <- readRDS("dados/legislativo_pronto_gee.rds")
 
 db_pres_gee <- readRDS("dados/presidencial_pronto_gee.rds")
-
-pacman::p_load(haven, tidyverse, readxl, sjlabelled, dplyr, foreign, rmarkdown, ggplot2,
-               geepack, plm, extrafont, ggrepel, text, knitr, kableExtra, corrplot)
 
 ```
 
@@ -68,7 +69,7 @@ A corrupção é constantemente citada como um dos maiores problemas dos países
 
 Anderson e Tverdova (2003) encontram que quanto maior o nível de percepção de corrupção de um indivíduo, menor o seu apoio às instituições políticas. O mesmo estudo também encontra um efeito similar em um nível mais macro: em sociedades com uma sensação maior de corrupção existe uma tendência a maior quantidade de atitudes negativas em relação aos funcionários públicos.
 
-A corrupção tem um impacto corrosivo na legitimidade conferida ao regime e na confiança em instituições políticas (Seligson, 2002; Poertner e Zhang, 2024). Por sua vez, a confiança nos partidos políticos é citado por Ceka (2012) como um dos fatores que levam eleitores do leste europeu a participar da política, tanto trabalhando para os partidos, quanto efetivamente votando em eleições.
+A corrupção tem um impacto corrosivo na legitimidade conferida ao regime e na confiança em instituições políticas (Seligson, 2002; Poertner e Zhang, 2024). Por sua vez, a confiança nos partidos políticos é citado por Ceka (2013) como um dos fatores que levam eleitores do leste europeu a participar da política, tanto trabalhando para os partidos, quanto efetivamente votando em eleições.
 
 Neste caso, o efeito da corrupção na Institucionalização do Sistema Partidário parece ser mediado pela confiança nos partidos políticos. Com isto em mente, a hipótese do presente trabalho é de que a confiança nos partidos diminui a volatilidade eleitoral em todas as suas dimensões (total, intra e extrassistêmica), tanto legislativa, quanto presidencial. Além disso, imagina-se a existência de uma correlação positiva entre o controle da corrupção e a confiança dos partidos políticos.
 
@@ -164,7 +165,7 @@ kable(conf_part %>% mutate(country = case_when(country == "ARGENTINA" ~ "Argenti
          rename("País" = country,
                 "Média" = media,
                 "Desvio Padrão" = desv_pad),
-      caption = "Tabela 1 - Resultados da Confiança nos Partidos por País")
+      caption = "<div style='text-align: center; font-size: 14px; color: black;'>Tabela 1 - Resultados da Confiança nos Partidos por País</div>")
 
 ```
 
@@ -172,13 +173,13 @@ O trabalho de Corral (2008), que se utiliza dos resultados de confiança nos par
 
 Sabatini (2003) cita frustração dos eleitores com má gestão econômica e a indignação com casos de corrupção política e estatal como fatores que justificam os partidos políticos estarem sempre mal posicionados em respostas sobre a confiança nas instituições políticas.
 
-Analisando as causas da desconfiança dos cidadãos nos partidos políticos em repúblicas ex-soviéticas, que apresentam níveis de confiança nos partidos políticos abaixo da média da variação total possível do índice, Ceka (2012) argumenta que em democracias mais competitivas, os casos de corrupção são escandalizados e geram repercussões na mídia através das vozes da oposição. Com a alternância de governo, existe uma deslegitimação de ambos os pólos, restando a desconfiança do eleitor e questionamentos constantes sobre as intenções e a confiabilidade nos políticos e nos partidos.
+Analisando as causas da desconfiança dos cidadãos nos partidos políticos em repúblicas ex-soviéticas, que apresentam níveis de confiança nos partidos políticos abaixo da média da variação total possível do índice, Ceka (2013) argumenta que em democracias mais competitivas, os casos de corrupção são escandalizados e geram repercussões na mídia através das vozes da oposição. Com a alternância de governo, existe uma deslegitimação de ambos os pólos, restando a desconfiança do eleitor e questionamentos constantes sobre as intenções e a confiabilidade nos políticos e nos partidos.
 
-Em alguns casos o autor também argumenta que houve uma quebra de expectativas com a democracia na transição entre os regimes comunistas e a democracia liberal (Ceka, 2012). Dentre os fatores que diminuem a confiança nos partidos políticos estão a competição partidária, a liberdade de imprensa e a confiança interpessoal.
+Em alguns casos o autor também argumenta que houve uma quebra de expectativas com a democracia na transição entre os regimes comunistas e a democracia liberal (Ceka, 2013). Dentre os fatores que diminuem a confiança nos partidos políticos estão a competição partidária, a liberdade de imprensa e a confiança interpessoal.
 
 Essa argumentação também pode ser utilizada para entender a desconfiança dos latinoamericanos com os partidos políticos. Os países que passaram por regimes ditatoriais viram casos de corrupção emergirem em diferentes governos e partidos, criando uma sensação de que todo o sistema político é corrupto, manchando, consecutivamente, a imagem dos partidos.
 
-Outro fator citado por Ceka (2012) que está presente na América Latina é a confiança interpessoal. A América Latina confia, em média, menos em outras pessoas se compararmos com países desenvolvidos e países em desenvolvimento (Jamison, 2011). Uruguai e México, que são os dois países que mais confiam nos partidos políticos, são os países que estão melhores colocados dentre os da região em relação à confiança interpessoal no estudo de Jamison (2011).
+Outro fator citado por Ceka (2013) que está presente na América Latina é a confiança interpessoal. A América Latina confia, em média, menos em outras pessoas se compararmos com países desenvolvidos e países em desenvolvimento (Jamison, 2011). Uruguai e México, que são os dois países que mais confiam nos partidos políticos, são os países que estão melhores colocados dentre os da região em relação à confiança interpessoal no estudo de Jamison (2011).
 
 ## 3.2 A corrupção e a confiança nos partidos políticos
 
@@ -221,6 +222,7 @@ ggplot(leg_comb %>% mutate(country = case_when(country == "ARGENTINA" ~ "Argenti
        title = "Figura 2 - Média do Controle da Corrupção nos Países da América Latina") +
   theme(plot.title = element_text(hjust = 0.5, size = 10, face = "bold"),
         axis.title.x = element_text(size = 12),
+        axis.text.x = element_text(size = 8),
         axis.title.y = element_text(size = 12),
         strip.text = element_text(size = 10))
         
@@ -279,7 +281,7 @@ ggplot(leg_comb %>% mutate(country = case_when(country == "ARGENTINA" ~ "Argenti
   theme_minimal() +
   labs(x = "Controle da Corrupção",
        y = "Confiança nos Partidos Políticos",
-       title = "Figura 4 - Relação entre Controle da Corrupção e Confiança nos Partidos Políticos") +
+       title = "Figura 4 - Controle da Corrupção e Confiança nos Partidos Políticos") +
   annotate("text", x = Inf, y = Inf,
            label = paste("Spearman =", round(cor_spear_conf_cor, 2)),
            hjust = 1.1, vjust = 2, size = 4, color = "#C21807") +
@@ -293,7 +295,7 @@ ggplot(leg_comb %>% mutate(country = case_when(country == "ARGENTINA" ~ "Argenti
 
 ```
 
-O resultado obtido é uma correlação positiva fraca de, aproximadamente, 0,27 para a correlação de Spearman e 0,29 para a correlação de Pearson. Esta baixa conexão pode indicar que o controle da corrupção é um dos fatores que influenciam a confiança nos partidos dentro de uma série de mais fatores. Como os citados anteriormente por Ceka (2012) a competição partidária, a liberdade de imprensa, influenciando uma maior suspeição em relação aos partidos políticos. E, num sentido contrário, a igualdade econômica, a confiança interpessoal, a confiança na democracia e proximidade aos partidos políticos, influenciando uma maior confiança.
+O resultado obtido é uma correlação positiva fraca de, aproximadamente, 0,27 para a correlação de Spearman e 0,29 para a correlação de Pearson. Esta baixa conexão pode indicar que o controle da corrupção é um dos fatores que influenciam a confiança nos partidos dentro de uma série de mais fatores. Como os citados anteriormente por Ceka (2013) a competição partidária, a liberdade de imprensa, influenciando uma maior suspeição em relação aos partidos políticos. E, num sentido contrário, a igualdade econômica, a confiança interpessoal, a confiança na democracia e proximidade aos partidos políticos, influenciando uma maior confiança.
 
 ## 3.3 A confiança nos partidos políticos e a volatilidade eleitoral
 
@@ -335,7 +337,7 @@ all_volatility <- leg_comb %>%
   rename("País" = country)
   
 
-kable(all_volatility, caption = "Tabela 2 - Resultados da Volatilidade Eleitoral Média por País")
+kable(all_volatility, caption = "<div style='text-align: center; font-size: 14px; color: black;'>Tabela 2 - Resultados da Volatilidade Eleitoral Média por País</div>")
 
 ```
 
@@ -518,6 +520,7 @@ tidy_wthin_pres_gee <- tidy(pres_wthin_gee) %>%
                              p.value <= 0.001 ~ "***"),
          estimate = paste0(estimate, p.value, " (", std.error, ")"))
 
+# Tabela Conjunta
 geear1 <- tidy_leg_gee %>%
   left_join(tidy_new_leg_gee, by = "term") %>%
   left_join(tidy_wthin_leg_gee, by = "term") %>%
@@ -534,18 +537,8 @@ geear1 <- tidy_leg_gee %>%
           "Vol. Pres. Intra" = "estimate.y.y.y") %>%
   select("Variáveis", "Vol. Leg. Total", "Vol. Pres. Total", "Vol. Leg. Extra", "Vol. Pres. Extra",
          "Vol. Leg. Intra", "Vol. Pres. Intra")
-  
-# Formatação condicional em negrito
 
-bold_if_contains <- function(x) {
-  if (grepl("*", x, ignore.case = TRUE)) {
-    return(cell_spec(x, bold = TRUE))
-  } else {
-    return(x)
-  }
-}
-
-kable(geear1, caption = "Tabela 3 - Resultados das Regressões (Modelo GEEAR1)")
+kable(geear1, caption = "<div style='text-align: center; font-size: 14px; color: black;'>Tabela 3 - Resultados das Regressões (Modelo GEEAR1)")
 
 ```
 
@@ -565,9 +558,7 @@ Analisando as mesmas colunas, um maior efeito esperado do crescimento do PIB na 
 
 A diferença entre o efeito da identificação partidária nas duas volatilidades pode ser entendido com os achados de Barthels (2000) e Weinschenk (2013) para as eleições americanas, com o partidarismo tendo um efeito maior na eleição presidencial do que na legislativa.
 
-No entanto, o resultado inverso é observado nos modelos que levam em conta as volatilidades eleitorais intrassistêmicas. Enquanto a identificação partidária consegue diminuir a mudança dos votos dos eleitores para outros partidos já estabelecidos no cenário legislativo, esse efeito não é significativo na eleição presidencial.
-
-Esta diferença no efeito da identificação partidária pode ser imaginada no seguinte cenário. Caso novos partidos de uma eleição consigam capturar uma maior porcentagem dos votos daqueles que não têm vínculos partidários, enquanto os partidários permanecem fiéis aos seus vínculos, haverá um aumento da volatilidade extrassistêmica com pouco efeito observado do partidarismo. Enquanto a volatilidade intrassistêmica será menor pela permanência dos identificados com algum partido.
+No entanto, o resultado inverso é observado nos modelos que levam em conta as volatilidades eleitorais intrassistêmicas. Enquanto a identificação partidária consegue diminuir a mudança dos votos dos eleitores para outros partidos já estabelecidos no cenário legislativo, esse efeito não é significativo na eleição presidencial. Esta diferença na relação da identificação partidária nas volatilidades legislativa e presidencial intrassistêmica também está presente no trabalho de Mainwaring e Su (2021).
 
 As duas últimas colunas, por sua vez, também não indicam um resultado de que a confiança afeta as volatilidades intrassistêmicas. Isto indica que a mudança entre partidos que já são competidores frequentes do sistema partidário não é influenciada pela maior ou menor confiança nos partidos, uma vez que a ele já é objeto da própria (des)confiança junto com os outros integrantes.
 
@@ -585,55 +576,56 @@ Futuros estudos podem fornecer modelos mais robustos para os determinantes indiv
 
 # REFERÊNCIAS
 
-ANDERSON, Christopher J.; TVERDOVA, Yuliya V. Corruption, political allegiances, and attitudes toward government in contemporary democracies. American journal of political science, v. 47, n. 1, p. 91-109, 2003.
+ANDERSON, Christopher J.; TVERDOVA, Yuliya V. Corruption, political allegiances, and attitudes toward government in contemporary democracies. **American Journal of Political Science**, v. 47, n. 1, p. 91-109, 2003.
 
-BARTELS, Larry M. Partisanship and voting behavior, 1952-1996. American Journal of Political Science, p. 35-50, 2000.
+BARTELS, Larry M. Partisanship and voting behavior, 1952-1996. **American Journal of Political Science**, p. 35-50, 2000.
 
-CANACHE, Damarys; ALLISON, Michael E. Perceptions of political corruption in Latin American democracies. Latin American Politics and Society, v. 47, n. 3, p. 91-111, 2005.
+CANACHE, Damarys; ALLISON, Michael E. Perceptions of political corruption in Latin American democracies. **Latin American Politics and Society**, v. 47, n. 3, p. 91-111, 2005.
 
-CAREY, John M.; SHUGART, Matthew Soberg. Incentives to cultivate a personal vote: A rank ordering of electoral formulas. Electoral studies, v. 14, n. 4, p. 417-439, 1995.
+CAREY, John M.; SHUGART, Matthew Soberg. Incentives to cultivate a personal vote: A rank ordering of electoral formulas. **Electoral studies**, v. 14, n. 4, p. 417-439, 1995.
 
-CEKA, Besir. The perils of political competition: Explaining participation and trust in political parties in Eastern Europe. Comparative Political Studies, v. 46, n. 12, p. 1610-1635, 2013.
+CEKA, Besir. The perils of political competition: Explaining participation and trust in political parties in Eastern Europe. **Comparative Political Studies**, v. 46, n. 12, p. 1610-1635, 2013.
 
-CORRAL, Margarita. Parties in Latin America. America Barometer Insights, n. 2, p. 3-6, 2008.
+CORRAL, Margarita. Parties in Latin America. **America Barometer Insights**, n. 2, p. 3-6, 2008.
 
-DASSONNEVILLE, Ruth; HOOGHE, Marc. Economic indicators and electoral volatility: economic effects on electoral volatility in Western Europe, 1950–2013. Comparative European Politics, v. 15, n. 6, p. 919-943, 2017.
+DASSONNEVILLE, Ruth; HOOGHE, Marc. Economic indicators and electoral volatility: economic effects on electoral volatility in Western Europe, 1950–2013. **Comparative European Politics**, v. 15, n. 6, p. 919-943, 2017.
 
-DOYLE, David. The legitimacy of political institutions: Explaining contemporary populism in Latin America. Comparative Political Studies, v. 44, n. 11, p. 1447-1473, 2011.
+DOYLE, David. The legitimacy of political institutions: Explaining contemporary populism in Latin America. **Comparative Political Studies**, v. 44, n. 11, p. 1447-1473, 2011.
 
-HALLERBERG, Mark; MARIER, Patrik. Executive authority, the personal vote, and budget discipline in Latin American and Caribbean countries. American Journal of Political Science, v. 48, n. 3, p. 571-587, 2004.
+HALLERBERG, Mark; MARIER, Patrik. Executive authority, the personal vote, and budget discipline in Latin American and Caribbean countries. **American Journal of Political Science**, v. 48, n. 3, p. 571-587, 2004.
 
-JAMISON, Giselle D. Interpersonal trust in Latin America: analyzing variations in trust using data from the Latinobarómetro. Journal of Multidisciplinary Research, v. 3, n. 3, p. 65-80, 2011.
+JAMISON, Giselle D. Interpersonal trust in Latin America: analyzing variations in trust using data from the Latinobarómetro. **Journal of Multidisciplinary Research**, v. 3, n. 3, p. 65-80, 2011.
 
-LAGO, Ignacio; TORCAL, Mariano. Electoral coordination and party system institutionalization. Party Politics, v. 26, n. 5, p. 570-580, 2020.
-LEVITSKY, Steven; CAMERON, Maxwell A. Democracy without parties? Political parties and regime change in Fujimori's Peru. Latin American Politics and Society, v. 45, n. 3, p. 1-33, 2003.
+LAGO, Ignacio; TORCAL, Mariano. Electoral coordination and party system institutionalization. **Party Politics**, v. 26, n. 5, p. 570-580, 2020.
 
-LUPU, Noam. Party brands in crisis: Partisanship, brand dilution, and the breakdown of political parties in Latin America. Cambridge University Press, 2016.
+LEVITSKY, Steven; CAMERON, Maxwell A. Democracy without parties? Political parties and regime change in Fujimori's Peru. **Latin American Politics and Society**, v. 45, n. 3, p. 1-33, 2003.
 
-KUENZI, Michelle et al. The economic determinants of electoral volatility in Africa. Party Politics, v. 25, n. 4, p. 621-631, 2019.
+LUPU, Noam. **Party brands in crisis: Partisanship, brand dilution, and the breakdown of political parties in Latin America.** Cambridge University Press, 2016.
 
-MAINWARING, Scott; ZOCO, Edurne. Political sequences and the stabilization of interparty competition: electoral volatility in old and new democracies. Party politics, v. 13, n. 2, p. 155-178, 2007.
+KUENZI, Michelle et al. The economic determinants of electoral volatility in Africa. **Party Politics**, v. 25, n. 4, p. 621-631, 2019.
 
-MAINWARING, Scott; GERVASONI, Carlos; ESPAÑA-NAJERA, Annabella. Extra-and within-system electoral volatility. Party Politics, v. 23, n. 6, p. 623-635, 2017.
+MAINWARING, Scott; ZOCO, Edurne. Political sequences and the stabilization of interparty competition: electoral volatility in old and new democracies. **Party Politics**, v. 13, n. 2, p. 155-178, 2007.
 
-MAINWARING, S. Party Systems in Latin America: Institutionalization, Decay, and Collapse. Cambridge: Cambridge University Press, 2018.
+MAINWARING, Scott; GERVASONI, Carlos; ESPAÑA-NAJERA, Annabella. Extra-and within-system electoral volatility. **Party Politics**, v. 23, n. 6, p. 623-635, 2017.
 
-MAINWARING, Scott; SU, Yen-Pin. Electoral Volatility in Latin America, 1932–2018. Studies in Comparative International Development, v. 56, p. 271-296, 2021.
+MAINWARING, S. **Party Systems in Latin America: Institutionalization, Decay, and Collapse.** Cambridge: Cambridge University Press, 2018.
+
+MAINWARING, Scott; SU, Yen-Pin. Electoral Volatility in Latin America, 1932–2018. **Studies in Comparative International Development**, v. 56, p. 271-296, 2021.
 
 MAINWARING, SCOTT; SU, YEN-PIN, 2021, "Replication Data for: Electoral Volatility in Latin America, 1932–2018", https://doi.org/10.7910/DVN/KVUKBF, Harvard Dataverse, V1, UNF:6:GSkBpSKk6SDR8S93C0i6SA== [fileUNF]
 
-PAVÃO, Nara. Corruption as the only option: The limits to electoral accountability. The Journal of Politics, v. 80, n. 3, p. 996-1010, 2018.
+PAVÃO, Nara. Corruption as the only option: The limits to electoral accountability. The **Journal of Politics**, v. 80, n. 3, p. 996-1010, 2018.
 
-POERTNER, Mathias; ZHANG, Nan. The effects of combating corruption on institutional trust and political engagement: Evidence from Latin America. Political Science Research and Methods, v. 12, n. 3, p. 633-642, 2024.
+POERTNER, Mathias; ZHANG, Nan. The effects of combating corruption on institutional trust and political engagement: Evidence from Latin America. **Political Science Research and Methods**, v. 12, n. 3, p. 633-642, 2024.
 
-ROTBERG, Robert I.. The Corruption of Latin America. Corruption In Latin America, [S.L.], p. 1-25, 20 out. 2018. Springer International Publishing. 
+ROTBERG, Robert I.. The Corruption of Latin America. **Corruption In Latin America**, [S.L.], p. 1-25, 20 out. 2018. Springer International Publishing. 
 
-SABATINI, Christopher. Latin America's lost illusions: Decentralization and political parties. Journal of democracy, v. 14, n. 2, p. 138-150, 2003.
+SABATINI, Christopher. Latin America's lost illusions: Decentralization and political parties. **Journal of Democracy**, v. 14, n. 2, p. 138-150, 2003.
 
-SAMUELS, David. Presidentialism and accountability for the economy in comparative perspective. American Political Science Review, v. 98, n. 3, p. 425-436, 2004.
+SAMUELS, David. Presidentialism and accountability for the economy in comparative perspective. **American Political Science Review**, v. 98, n. 3, p. 425-436, 2004.
 
-SCHEDLER, Andreas. Anti-political-establishment parties. Party politics, v. 2, n. 3, p. 291-312, 1996.
+SCHEDLER, Andreas. Anti-political-establishment parties. **Party politics**, v. 2, n. 3, p. 291-312, 1996.
 
-SELIGSON, Mitchell A. The impact of corruption on regime legitimacy: A comparative study of four Latin American countries. Journal of politics, v. 64, n. 2, p. 408-433, 2002.
+SELIGSON, Mitchell A. The impact of corruption on regime legitimacy: A comparative study of four Latin American countries. **Journal of Politics**, v. 64, n. 2, p. 408-433, 2002.
 
 WEINSCHENK, Aaron C. Polls and elections: Partisanship and voting behavior: An update. Presidential Studies Quarterly, v. 43, n. 3, p. 607-617, 2013.
