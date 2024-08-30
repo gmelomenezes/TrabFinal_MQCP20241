@@ -1,0 +1,26 @@
+---
+title: "Trabalho Final MQCP 2024.1"
+author: "Gabriel Melo de Menezes"
+date: "2024-08-10"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+setwd("~/dados")
+
+conf_part <- readRDS("dados/confianca_partidaria.rds")
+
+```
+
+# Objeto
+
+A 
+
+# Objetivos (questões de pesquisa que o trabalho irá responder)
+# Contexto (justificativa)
+# Método (como foram coletados, tratados e organizados os dados)
+# Gráficos/tabelas (2 slides, pelo menos)
+# Conclusões
+
